@@ -21,7 +21,7 @@ listPressure = []
 listGas = []
 listTemperature = []
 listIAQ = []
-listHumidity  = []
+listHumidity = []
 listStatus = []
 
 
@@ -35,6 +35,7 @@ def pub_mqtt(jsonrow):
 
 for line in iter(proc.stdout.readline, ''):
     lineJSON = json.loads(line.decode("utf-8"))  # process line-by-line
+    print(lineJSON)
     lineDict = dict(lineJSON)
 
     listIAQ_Accuracy.append(int(lineDict['IAQ_Accuracy']))
