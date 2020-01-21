@@ -1,7 +1,7 @@
-import subprocess, json, ConfigParser
+import subprocess, json, configparser
 from statistics import median
 
-config = ConfigParser.ConfigParser()
+config = configparser.ConfigParser()
 config.read('config/config.txt')
 
 MQTT_HOST = config.get('SETTINGS', 'MQTT_HOST')
@@ -28,23 +28,22 @@ listStatus = []
 def pub_mqtt(jsonrow):
     cmd = ['mosquitto_pub', '-d', '--cafile', MQTT_CAFILE, '--cert', MQTT_CRT, '--key', MQTT_KEY, '-h', MQTT_HOST, '-t',
            MQTT_TOPIC, '-p', MQTT_PORT, '-u', MQTT_USER, '-P', MQTT_PASSWORD, '-r', '-s']
-
-    with subprocess.Popen(cmd, shell=False, bufsize=0, stdin=subprocess.PIPE).stdin as f:
+    print(jsonrow)
+    with subprocess.Popen(cmd, shell=False, bufsize=0, stdin=subprocess.PIPE, encoding='utf-8').stdin as f:
         json.dump(jsonrow, f)
 
 
 for line in iter(proc.stdout.readline, ''):
     lineJSON = json.loads(line.decode("utf-8"))  # process line-by-line
-    print(lineJSON)
     lineDict = dict(lineJSON)
 
-    listIAQ_Accuracy.append(int(lineDict['IAQ_Accuracy']))
-    listPressure.append(float(lineDict['Pressure']))
-    listGas.append(int(lineDict['Gas']))
-    listTemperature.append(float(lineDict['Temperature']))
-    listIAQ.append(float(lineDict['IAQ']))
-    listHumidity.append(float(lineDict['Humidity']))
-    listStatus.append(int(lineDict['Status']))
+    listIAQ_Accuracy.append(int(lineDict['iaq_accuracy']))
+    listPressure.append(float(lineDict['pressure']))
+    listGas.append(int(lineDict['eco2_ppm']))
+    listTemperature.append(float(lineDict['temperature']))
+    listIAQ.append(float(lineDict['iaq']))
+    listHumidity.append(float(lineDict['humidity']))
+    listStatus.append(int(lineDict['bsec_status']))
 
     if len(listIAQ_Accuracy) == 20:
         # generate the median for each value
@@ -69,7 +68,7 @@ for line in iter(proc.stdout.readline, ''):
         Temperature = Temperature + 2
 
         # Convert the Fahrenheit
-        Temperature = (Temperature * 9/5) + 32
+        Temperature = (Temperature * 9 / 5) + 32
 
         payload = {"IAQ_Accuracy": IAQ_Accuracy,
                    "IAQ": round(IAQ, 1),
